@@ -1,0 +1,13 @@
+POST http://localhost:5080/appliances
+Content-Type: application/json
+
+{
+    "houseId" : 7,
+    "tenantId" : 1,
+    "name" : "Living Room TV",
+    "brand" : "LG",
+    "price" : 1285.11,
+    "purchaseDate" : "2023-09-10",
+    "installationDate" : "2023-09-10",
+    "userId" : "kmark"
+}

@@ -7,7 +7,10 @@ namespace HouseInv.Models.Entities.Resources.Personal.Appliance
     {
         [Column("id")]
         public long Id { get; init; }
-        
+
+        [Column("personalResourceId")]
+        public required long PersonalResourceId { get; init; }
+
         [Column("brand")]
         public required string Brand { get; init; }
 
@@ -19,9 +22,6 @@ namespace HouseInv.Models.Entities.Resources.Personal.Appliance
 
         [Column("installationDate")]
         public required DateTime InstallationDate { get; init; }
-
-        [Column("personalResourceId")]
-        public required long PersonalResourceId { get; init; }
 
         [Column("createdDate")]
         public required DateTime CreatedDate { get; init; }

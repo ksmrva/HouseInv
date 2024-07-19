@@ -1,114 +1,72 @@
+using ErrorOr;
 using HouseInv.Models.Dtos.Persons;
-using HouseInv.Models.Entities.Persons;
-using HouseInv.Repositories;
+using HouseInv.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseInv.Controllers
 {
-    [ApiController]
-    [Route("persons")]
-    public class PersonsController : ControllerBase
+    public class PersonsController : ApiController
     {
-        private readonly HouseInvDbContext houseInvDbContext;
+        private readonly IPersonsService personsService;
 
-        public PersonsController(HouseInvDbContext houseInvDbContext) 
+        public PersonsController(IPersonsService personsService)
         {
-            this.houseInvDbContext = houseInvDbContext;
+            this.personsService = personsService;
         }
 
         [HttpPost]
         public async Task<ActionResult<PersonDto>> CreatePersonAsync(CreatePersonDto createPersonDto)
         {
-            var utcNowValue = DateTime.UtcNow;
-            Person person = new()
-            {
-                FirstName = createPersonDto.FirstName,
-                LastName = createPersonDto.LastName,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createPersonDto.UserId,
-                ModifiedUser = createPersonDto.UserId
-            };
+            ErrorOr<PersonDto> errorOrPersonDto = await personsService.CreatePersonAsync(createPersonDto);
 
-            await houseInvDbContext.Person.AddAsync(person);
-            await houseInvDbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetPersonAsync), new { personId = person.Id }, person.AsDto() );
+            return errorOrPersonDto.Match(
+                personDto => Ok(CreatedAtAction(nameof(GetPersonAsync), new { id = personDto.Id }, personDto)),
+                errors => Problem(errors)
+            );
         }
 
         [HttpGet("{personId}")]
         public async Task<ActionResult<PersonDto>> GetPersonAsync(long personId)
         {
-            ActionResult<PersonDto> actionResult;
-            Person personResult = await houseInvDbContext.Person.FindAsync(personId);
-            if (personResult == null) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(personResult.AsDto());
-            }
-            return actionResult;
+            ErrorOr<PersonDto> errorOrPersonDto = await personsService.GetPersonAsync(personId);
+
+            return errorOrPersonDto.Match(
+                personDto => Ok(personDto),
+                errors => Problem(errors)
+            );
         }
-        
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PersonDto>>> GetPersonsAsync()
+        public async Task<ActionResult<List<PersonDto>>> GetPersonsAsync()
         {
-            ActionResult<IEnumerable<PersonDto>> actionResult;
-            IEnumerable<Person> personsResult = houseInvDbContext.Person;
-            if (personsResult == null || !(personsResult.Any())) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(personsResult.Select(person => person.AsDto()));
-            }
-            return await Task.FromResult(actionResult);
+            ErrorOr<List<PersonDto>> errorOrPersonDtos = await personsService.GetPersonsAsync();
+
+            return errorOrPersonDtos.Match(
+                personDtos => Ok(personDtos),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPut("{personId}")]
         public async Task<ActionResult> UpdatePersonAsync(long personId, UpdatePersonDto updatePersonDto)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Person existingPerson = await personRepository.GetPersonAsync(personId);
-            // if(existingPerson is null) {
-            //     result = NotFound();
-            // } else {
+            ErrorOr<Updated> errorOrUpdated = await personsService.UpdatePersonAsync(personId, updatePersonDto);
 
-            //     if(updatePersonDto.FirstName is null || updatePersonDto.FirstName.Length == 0) {
-            //         updatePersonDto.FirstName = existingPerson.FirstName;
-            //     }
-            //     if(updatePersonDto.LastName is null || updatePersonDto.LastName.Length == 0) {
-            //         updatePersonDto.LastName = existingPerson.LastName;
-            //     }
-                
-            //     Person updatedPerson = existingPerson with {
-            //         FirstName = updatePersonDto.FirstName,
-            //         LastName = updatePersonDto.LastName,
-            //         ModifiedDate = DateTimeOffset.UtcNow,
-            //         ModifiedUser = updatePersonDto.UserId
-            //     };
-            //     await personRepository.UpdatePersonAsync(updatedPerson);
-            //     result = NoContent();
-            // }
-            // return result;
+            return errorOrUpdated.Match(
+                updated => NoContent(),
+                errors => Problem(errors)
+            );
         }
 
         [HttpDelete("{personId}")]
         public async Task<ActionResult> DeletePersonAsync(long personId)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Person existingPerson = await personRepository.GetPersonAsync(personId);
-            // if(existingPerson is null) {
-            //     result = NotFound();
-            // } else {
-            //     await personRepository.DeletePersonAsync(personId);
-            //     result = NoContent();
-            // }
-            // return result;
+            ErrorOr<Deleted> errorOrDeleted = await personsService.DeletePersonAsync(personId);
+
+            return errorOrDeleted.Match(
+                deleted => NoContent(),
+                errors => Problem(errors)
+            );
         }
     }
 }

@@ -12,7 +12,7 @@ namespace HouseInv.Models.Entities.Resources.Personal
         public required long TenantId { get; init; }
 
         [Column("resourceId")]
-        public long ResourceId { get; init; }
+        public required long ResourceId { get; init; }
 
         [Column("createdDate")]
         public required DateTime CreatedDate { get; init; }

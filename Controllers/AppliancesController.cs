@@ -1,153 +1,72 @@
+using ErrorOr;
 using HouseInv.Models.Dtos.Resources.Personal.Appliance;
-using HouseInv.Models.Entities.Resources;
-using HouseInv.Models.Entities.Resources.Personal;
-using HouseInv.Models.Entities.Resources.Personal.Appliance;
-using HouseInv.Repositories;
+using HouseInv.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseInv.Controllers
 {
-    [ApiController]
-    [Route("appliances")]
-    public class AppliancesController : ControllerBase
+    public class AppliancesController : ApiController
     {
-        private readonly HouseInvDbContext houseInvDbContext;
+        private readonly IAppliancesService appliancesService;
 
-        public AppliancesController(HouseInvDbContext houseInvDbContext) 
+        public AppliancesController(IAppliancesService appliancesService)
         {
-            this.houseInvDbContext = houseInvDbContext;
+            this.appliancesService = appliancesService;
         }
 
         [HttpPost]
         public async Task<ActionResult<ApplianceDto>> CreateApplianceAsync(CreateApplianceDto createApplianceDto)
         {
-            var utcNowValue = DateTime.UtcNow;
+            ErrorOr<ApplianceDto> errorOrApplianceDto = await appliancesService.CreateApplianceAsync(createApplianceDto);
 
-            Resource resource = new()
-            {
-                HouseId = createApplianceDto.HouseId,
-                Name = createApplianceDto.Name,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createApplianceDto.UserId,
-                ModifiedUser = createApplianceDto.UserId
-            };
-            houseInvDbContext.Add(resource);
-            houseInvDbContext.SaveChanges();
-
-            PersonalResource personalResource = new()
-            {
-                ResourceId = resource.Id,
-                TenantId = createApplianceDto.TenantId,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createApplianceDto.UserId,
-                ModifiedUser = createApplianceDto.UserId
-            };
-            houseInvDbContext.Add(personalResource);
-            houseInvDbContext.SaveChanges();
-
-            Appliance appliance = new()
-            {
-                PersonalResourceId = personalResource.Id,
-                Brand = createApplianceDto.Brand,
-                Price = createApplianceDto.Price,
-                PurchaseDate = createApplianceDto.PurchaseDate.ToUniversalTime(),
-                InstallationDate = createApplianceDto.InstallationDate.ToUniversalTime(),
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createApplianceDto.UserId,
-                ModifiedUser = createApplianceDto.UserId
-            };
-            await houseInvDbContext.Appliance.AddAsync(appliance);
-            await houseInvDbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetApplianceAsync), new { applianceId = appliance.Id }, appliance.AsDto() );
+            return errorOrApplianceDto.Match(
+                applianceDto => Ok(CreatedAtAction(nameof(GetApplianceAsync), new { id = applianceDto.Id }, applianceDto)),
+                errors => Problem(errors)
+            );
         }
 
         [HttpGet("{applianceId}")]
         public async Task<ActionResult<ApplianceDto>> GetApplianceAsync(long applianceId)
         {
-            ActionResult<ApplianceDto> actionResult;
-            Appliance applianceResult = await houseInvDbContext.Appliance.FindAsync(applianceId);
-            if (applianceResult == null) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(applianceResult.AsDto());
-            }
-            return actionResult;
+            ErrorOr<ApplianceDto> errorOrApplianceDto = await appliancesService.GetApplianceAsync(applianceId);
+
+            return errorOrApplianceDto.Match(
+                applianceDto => Ok(applianceDto),
+                errors => Problem(errors)
+            );
         }
-        
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplianceDto>>> GetAppliancesAsync()
+        public async Task<ActionResult<List<ApplianceDto>>> GetAppliancesAsync()
         {
-            ActionResult<IEnumerable<ApplianceDto>> actionResult;
-            IEnumerable<Appliance> appliancesResult = houseInvDbContext.Appliance;
-            if (appliancesResult == null || !(appliancesResult.Any())) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(appliancesResult.Select(appliance => appliance.AsDto()));
-            }
-            return await Task.FromResult(actionResult);
+            ErrorOr<List<ApplianceDto>> errorOrApplianceDtos = await appliancesService.GetAppliancesAsync();
+
+            return errorOrApplianceDtos.Match(
+                applianceDtos => Ok(applianceDtos),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPut("{applianceId}")]
         public async Task<ActionResult> UpdateApplianceAsync(long applianceId, UpdateApplianceDto updateApplianceDto)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Appliance existingAppliance = await applianceRepository.GetApplianceAsync(applianceId);
-            // if(existingAppliance is null) {
-            //     result = NotFound();
-            // } else {
+            ErrorOr<Updated> errorOrUpdated = await appliancesService.UpdateApplianceAsync(applianceId, updateApplianceDto);
 
-            //     // if(updateApplianceDto.HouseId is null || updateApplianceDto.HouseId.Length == 0) {
-            //     //     updateApplianceDto.HouseId = existingAppliance.HouseId;
-            //     // }
-            //     // if(updateApplianceDto.TenantId is null || updateApplianceDto.TenantId.Length == 0) {
-            //     //     updateApplianceDto.TenantId = existingAppliance.TenantId;
-            //     // }
-            //     if(updateApplianceDto.Name is null || updateApplianceDto.Name.Length == 0) {
-            //         updateApplianceDto.Name = existingAppliance.Name;
-            //     }
-            //     if(updateApplianceDto.Brand is null || updateApplianceDto.Brand.Length == 0) {
-            //         updateApplianceDto.Brand = existingAppliance.Brand;
-            //     }
-            //     if(updateApplianceDto.Price is null || updateApplianceDto.Price <= 0.00m) {
-            //         updateApplianceDto.Price = existingAppliance.Price;
-            //     }
-                
-            //     Appliance updatedAppliance = existingAppliance with {
-            //         Name = updateApplianceDto.Name,
-            //         Brand = updateApplianceDto.Brand,
-            //         Price = (decimal)updateApplianceDto.Price,
-            //         ModifiedDate = DateTimeOffset.UtcNow,
-            //         ModifiedUser = updateApplianceDto.UserId
-            //     };
-            //     await applianceRepository.UpdateApplianceAsync(updatedAppliance);
-            //     result = NoContent();
-            // }
-            // return result;
+            return errorOrUpdated.Match(
+                updated => NoContent(),
+                errors => Problem(errors)
+            );
         }
 
         [HttpDelete("{applianceId}")]
         public async Task<ActionResult> DeleteApplianceAsync(long applianceId)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Appliance existingAppliance = await applianceRepository.GetApplianceAsync(applianceId);
-            // if(existingAppliance is null) {
-            //     result = NotFound();
-            // } else {
-            //     await applianceRepository.DeleteApplianceAsync(applianceId);
-            //     result = NoContent();
-            // }
-            // return result;
+            ErrorOr<Deleted> errorOrDeleted = await appliancesService.DeleteApplianceAsync(applianceId);
+
+            return errorOrDeleted.Match(
+                deleted => NoContent(),
+                errors => Problem(errors)
+            );
         }
     }
 }

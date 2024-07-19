@@ -20,12 +20,12 @@ public class HouseInvDbContext : DbContext
     public DbSet<Resource> Resource { get; set; } = null!;
     public DbSet<PersonalResource> PersonalResource { get; set; } = null!;
 
-    public HouseInvDbContext(DbContextOptions<HouseInvDbContext> options, IDbContextSchema schema = null) 
+    public HouseInvDbContext(DbContextOptions<HouseInvDbContext> options, IDbContextSchema schema = null)
         : base(options)
     {
         Schema = schema?.Schema;
     }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HouseInvDbContext).Assembly);
@@ -36,5 +36,10 @@ public class HouseInvDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ApplianceEntityTypeConfiguration(Schema));
         modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration(Schema));
         modelBuilder.ApplyConfiguration(new PersonalResourceEntityTypeConfiguration(Schema));
+    }
+
+    public void Detach(object entity)
+    {
+        Entry(entity).State = EntityState.Detached;
     }
 }

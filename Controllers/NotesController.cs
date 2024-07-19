@@ -10,7 +10,7 @@ namespace HouseInv.Controllers
     {
         private readonly IAsyncNotesRepository noteRepository;
 
-        public NotesController(IAsyncNotesRepository noteRepository) 
+        public NotesController(IAsyncNotesRepository noteRepository)
         {
             this.noteRepository = noteRepository;
         }
@@ -30,7 +30,7 @@ namespace HouseInv.Controllers
             };
             await noteRepository.CreateNoteAsync(note);
 
-            return CreatedAtAction(nameof(GetNoteAsync), new { id = note.Id }, note.AsDto() );
+            return CreatedAtAction(nameof(GetNoteAsync), new { id = note.Id }, note.AsDto());
         }
 
         [HttpGet("{id}")]
@@ -38,27 +38,27 @@ namespace HouseInv.Controllers
         {
             ActionResult<NoteDto> actionResult;
             Note noteResult = await noteRepository.GetNoteAsync(noteId);
-            if (noteResult == null) 
+            if (noteResult == null)
             {
                 actionResult = NotFound();
             }
-            else 
+            else
             {
                 actionResult = Ok(noteResult.AsDto());
             }
             return actionResult;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NoteDto>>> GetNotesAsync()
         {
             ActionResult<IEnumerable<NoteDto>> actionResult;
             IEnumerable<Note> notesResult = await noteRepository.GetNotesAsync();
-            if (notesResult == null || !(notesResult.Any())) 
+            if (notesResult == null || !(notesResult.Any()))
             {
                 actionResult = NotFound();
             }
-            else 
+            else
             {
                 actionResult = Ok(notesResult.Select(note => note.AsDto()));
             }
@@ -70,14 +70,19 @@ namespace HouseInv.Controllers
         {
             ActionResult result;
             Note existingNote = await noteRepository.GetNoteAsync(noteId);
-            if(existingNote is null) {
+            if (existingNote is null)
+            {
                 result = NotFound();
-            } else {
-                if(updateNoteDto.NoteValue is null || updateNoteDto.NoteValue.Length == 0) {
+            }
+            else
+            {
+                if (updateNoteDto.NoteValue is null || updateNoteDto.NoteValue.Length == 0)
+                {
                     updateNoteDto.NoteValue = existingNote.NoteValue;
                 }
-                
-                Note updatedNote = existingNote with {
+
+                Note updatedNote = existingNote with
+                {
                     NoteValue = updateNoteDto.NoteValue,
                     ModifiedDate = DateTimeOffset.UtcNow,
                     ModifiedUser = updateNoteDto.UserId
@@ -93,9 +98,12 @@ namespace HouseInv.Controllers
         {
             ActionResult result;
             Note existingNote = await noteRepository.GetNoteAsync(noteId);
-            if(existingNote is null) {
+            if (existingNote is null)
+            {
                 result = NotFound();
-            } else {
+            }
+            else
+            {
                 await noteRepository.DeleteNoteAsync(noteId);
                 result = NoContent();
             }

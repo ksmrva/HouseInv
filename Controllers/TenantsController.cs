@@ -1,113 +1,72 @@
+using ErrorOr;
 using HouseInv.Models.Dtos.Tenants;
-using HouseInv.Models.Entities.Tenants;
-using HouseInv.Repositories;
+using HouseInv.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseInv.Controllers
 {
-    [ApiController]
-    [Route("tenants")]
-    public class TenantsController : ControllerBase
+    public class TenantsController : ApiController
     {
-        private readonly HouseInvDbContext houseInvDbContext;
+        private readonly ITenantsService tenantsService;
 
-        public TenantsController(HouseInvDbContext houseInvDbContext) 
+        public TenantsController(ITenantsService tenantsService)
         {
-            this.houseInvDbContext = houseInvDbContext;
+            this.tenantsService = tenantsService;
         }
 
         [HttpPost]
         public async Task<ActionResult<TenantDto>> CreateTenantAsync(CreateTenantDto createTenantDto)
         {
-            var utcNowValue = DateTime.UtcNow;
-            Tenant tenant = new()
-            {
-                HouseId = createTenantDto.HouseId,
-                PersonId = createTenantDto.PersonId,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createTenantDto.UserId,
-                ModifiedUser = createTenantDto.UserId
-            };
-            await houseInvDbContext.Tenant.AddAsync(tenant);
-            await houseInvDbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetTenantAsync), new { tenantId = tenant.Id }, tenant.AsDto() );
+            ErrorOr<TenantDto> errorOrTenantDto = await tenantsService.CreateTenantAsync(createTenantDto);
+
+            return errorOrTenantDto.Match(
+                tenantDto => Ok(CreatedAtAction(nameof(GetTenantAsync), new { id = tenantDto.Id }, tenantDto)),
+                errors => Problem(errors)
+            );
         }
 
         [HttpGet("{tenantId}")]
         public async Task<ActionResult<TenantDto>> GetTenantAsync(long tenantId)
         {
-            ActionResult<TenantDto> actionResult;
-            Tenant tenantResult = await houseInvDbContext.Tenant.FindAsync(tenantId);
-            if (tenantResult == null) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(tenantResult.AsDto());
-            }
-            return actionResult;
+            ErrorOr<TenantDto> errorOrTenantDto = await tenantsService.GetTenantAsync(tenantId);
+
+            return errorOrTenantDto.Match(
+                tenantDto => Ok(tenantDto),
+                errors => Problem(errors)
+            );
         }
-        
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TenantDto>>> GetTenantsAsync()
+        public async Task<ActionResult<List<TenantDto>>> GetTenantsAsync()
         {
-            ActionResult<IEnumerable<TenantDto>> actionResult;
-            IEnumerable<Tenant> tenantsResult = houseInvDbContext.Tenant;
-            if (tenantsResult == null || !(tenantsResult.Any())) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(tenantsResult.Select(tenant => tenant.AsDto()));
-            }
-            return await Task.FromResult(actionResult);
+            ErrorOr<List<TenantDto>> errorOrTenantDtos = await tenantsService.GetTenantsAsync();
+
+            return errorOrTenantDtos.Match(
+                tenantDtos => Ok(tenantDtos),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPut("{tenantId}")]
         public async Task<ActionResult> UpdateTenantAsync(long tenantId, UpdateTenantDto updateTenantDto)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Tenant existingTenant = await tenantRepository.GetTenantAsync(tenantId);
-            // if(existingTenant is null) {
-            //     result = NotFound();
-            // } else {
+            ErrorOr<Updated> errorOrUpdated = await tenantsService.UpdateTenantAsync(tenantId, updateTenantDto);
 
-            //     // if(updateTenantDto.HouseId is null || updateTenantDto.HouseId.Length == 0) {
-            //     //     updateTenantDto.HouseId = existingTenant.HouseId;
-            //     // }
-            //     // if(updateTenantDto.PersonId is null || updateTenantDto.PersonId.Length == 0) {
-            //     //     updateTenantDto.PersonId = existingTenant.PersonId;
-            //     // }
-                
-            //     Tenant updatedTenant = existingTenant with {
-            //         HouseId = updateTenantDto.HouseId,
-            //         PersonId = updateTenantDto.PersonId,
-            //         ModifiedDate = DateTime.UtcNow,
-            //         ModifiedUser = updateTenantDto.UserId
-            //     };
-            //     await tenantRepository.UpdateTenantAsync(updatedTenant);
-            //     result = NoContent();
-            // }
-            // return result;
+            return errorOrUpdated.Match(
+                updated => NoContent(),
+                errors => Problem(errors)
+            );
         }
 
         [HttpDelete("{tenantId}")]
         public async Task<ActionResult> DeleteTenantAsync(long tenantId)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // Tenant existingTenant = await tenantRepository.GetTenantAsync(tenantId);
-            // if(existingTenant is null) {
-            //     result = NotFound();
-            // } else {
-            //     await tenantRepository.DeleteTenantAsync(tenantId);
-            //     result = NoContent();
-            // }
-            // return result;
+            ErrorOr<Deleted> errorOrDeleted = await tenantsService.DeleteTenantAsync(tenantId);
+
+            return errorOrDeleted.Match(
+                deleted => NoContent(),
+                errors => Problem(errors)
+            );
         }
     }
 }

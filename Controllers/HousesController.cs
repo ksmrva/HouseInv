@@ -1,141 +1,72 @@
+using ErrorOr;
 using HouseInv.Models.Dtos.Houses;
-using HouseInv.Models.Entities.Houses;
-using HouseInv.Repositories;
+using HouseInv.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseInv.Controllers
 {
-    [ApiController]
-    [Route("houses")]
-    public class HousesController : ControllerBase
+    public class HousesController : ApiController
     {
-        private readonly HouseInvDbContext houseInvDbContext;
+        private readonly IHousesService housesService;
 
-        public HousesController(HouseInvDbContext houseInvDbContext) 
+        public HousesController(IHousesService housesService)
         {
-            // this.houseRepository = houseRepository;
-            this.houseInvDbContext = houseInvDbContext;
+            this.housesService = housesService;
         }
 
         [HttpPost]
         public async Task<ActionResult<HouseDto>> CreateHouseAsync(CreateHouseDto createHouseDto)
         {
-            var utcNowValue = DateTime.UtcNow;
-            House house = new()
-            {
-                Name = createHouseDto.Name,
-                Address1 = createHouseDto.Address1,
-                Address2 = createHouseDto.Address2,
-                City = createHouseDto.City,
-                State = createHouseDto.State,
-                Zip = createHouseDto.Zip,
-                OwnerId = createHouseDto.OwnerId,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createHouseDto.UserId,
-                ModifiedUser = createHouseDto.UserId
-            };
+            ErrorOr<HouseDto> errorOrResourceDto = await housesService.CreateHouseAsync(createHouseDto);
 
-            await houseInvDbContext.House.AddAsync(house);
-            await houseInvDbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetHouseAsync), new { id = house.Id }, house.AsDto() );
+            return errorOrResourceDto.Match(
+                resourceDto => Ok(CreatedAtAction(nameof(GetHouseAsync), new { id = resourceDto.Id }, resourceDto)),
+                errors => Problem(errors)
+            );
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<HouseDto>> GetHouseAsync(long id)
+        [HttpGet("{houseId}")]
+        public async Task<ActionResult<HouseDto>> GetHouseAsync(long houseId)
         {
-            ActionResult<HouseDto> actionResult;
-            House houseResult = await houseInvDbContext.House.FindAsync(id);
-            if (houseResult == null) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(houseResult.AsDto());
-            }
-            return actionResult;
+            ErrorOr<HouseDto> errorOrResourceDto = await housesService.GetHouseAsync(houseId);
+
+            return errorOrResourceDto.Match(
+                resourceDto => Ok(resourceDto),
+                errors => Problem(errors)
+            );
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HouseDto>>> GetHousesAsync()
         {
-            ActionResult<IEnumerable<HouseDto>> actionResult;
-            IEnumerable<House> housesResult = houseInvDbContext.House;
-            if (housesResult == null || !(housesResult.Any())) 
-            {
-                actionResult = NotFound();
-            }
-            else 
-            {
-                actionResult = Ok(housesResult.Select(house => house.AsDto()));
-            }
-            return await Task.FromResult(actionResult);
+            ErrorOr<List<HouseDto>> errorOrResourceDtos = await housesService.GetHousesAsync();
+
+            return errorOrResourceDtos.Match(
+                resourceDtos => Ok(resourceDtos),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPut("{houseId}")]
         public async Task<ActionResult> UpdateHouseAsync(long houseId, UpdateHouseDto updatedHouseDto)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // House existingHouse = await houseInvDbContext.House.FindAsync(houseId);
-            
-            // if(updatedHouseDto.UserId is null || updatedHouseDto.UserId.Length == 0) {
-            //     //throw new Exception("User ID must be defined");
-            // }
-            // if(existingHouse is null) {
-            //     result = NotFound();
-            // } else {
-                
-            //     if(updatedHouseDto.Name is null || updatedHouseDto.Name.Length == 0) {
-            //         updatedHouseDto.Name = existingHouse.Name;
-            //     }
-            //     if(updatedHouseDto.Address1 is null || updatedHouseDto.Address1.Length == 0) {
-            //         updatedHouseDto.Address1 = existingHouse.Address1;
-            //     }
-            //     if(updatedHouseDto.Address2 is null || updatedHouseDto.Address2.Length == 0) {
-            //         updatedHouseDto.Address2 = existingHouse.Address2;
-            //     }
-            //     if(updatedHouseDto.City is null || updatedHouseDto.City.Length == 0) {
-            //         updatedHouseDto.City = existingHouse.City;
-            //     }
-            //     if(updatedHouseDto.State is null || updatedHouseDto.State.Length == 0) {
-            //         updatedHouseDto.State = existingHouse.State;
-            //     }
-            //     if(updatedHouseDto.Zip is null || updatedHouseDto.Zip.Length == 0) {
-            //         updatedHouseDto.Zip = existingHouse.Zip;
-            //     }
+            ErrorOr<Updated> errorOrUpdated = await housesService.UpdateHouseAsync(houseId, updatedHouseDto);
 
-            //     House updatedHouse = existingHouse with {
-            //         Name = updatedHouseDto.Name,
-            //         Address1 = updatedHouseDto.Address1,
-            //         Address2 = updatedHouseDto.Address2,
-            //         City = updatedHouseDto.City,
-            //         State = updatedHouseDto.State,
-            //         Zip = updatedHouseDto.Zip,
-            //         ModifiedDate = DateTime.UtcNow,
-            //         ModifiedUser = updatedHouseDto.UserId
-            //     };
-            //     await houseRepository.UpdateHouseAsync(updatedHouse);
-            //     result = NoContent();
-            // }
-            // return result;
+            return errorOrUpdated.Match(
+                updated => NoContent(),
+                errors => Problem(errors)
+            );
         }
 
         [HttpDelete("{houseId}")]
         public async Task<ActionResult> DeleteHouseAsync(long houseId)
         {
-            throw new NotImplementedException();
-            // ActionResult result;
-            // House existingHouse = await houseRepository.GetHouseAsync(houseId);
-            // if(existingHouse is null) {
-            //     result = NotFound();
-            // } else {
-            //     await houseRepository.DeleteHouseAsync(houseId);
-            //     result = NoContent();
-            // }
-            // return result;
+            ErrorOr<Deleted> errorOrDeleted = await housesService.DeleteHouseAsync(houseId);
+
+            return errorOrDeleted.Match(
+                deleted => NoContent(),
+                errors => Problem(errors)
+            );
         }
     }
 }

@@ -29,7 +29,7 @@ namespace HouseInv
                 ModifiedUser = person.ModifiedUser
             };
         }
-        
+
         public static HouseDto AsDto(this House house)
         {
             return new HouseDto
@@ -94,6 +94,16 @@ namespace HouseInv
             };
         }
 
+        public static CreateResourceDto CreateResourceDtoFromCreateApplianceDto(this CreateApplianceDto createApplianceDto)
+        {
+            return new CreateResourceDto
+            {
+                HouseId = createApplianceDto.HouseId,
+                Name = createApplianceDto.Name,
+                UserId = createApplianceDto.UserId
+            };
+        }
+
         public static PersonalResourceDto AsDto(this PersonalResource personalResource)
         {
             return new PersonalResourceDto
@@ -105,6 +115,27 @@ namespace HouseInv
                 ModifiedDate = personalResource.ModifiedDate,
                 CreatedUser = personalResource.CreatedUser,
                 ModifiedUser = personalResource.ModifiedUser
+            };
+        }
+
+        public static CreateResourceDto CreateResourceDtoFromCreatePersonalResourceDto(this CreatePersonalResourceDto createPersonalResourceDto)
+        {
+            return new CreateResourceDto
+            {
+                Name = createPersonalResourceDto.Name,
+                HouseId = createPersonalResourceDto.HouseId,
+                UserId = createPersonalResourceDto.UserId
+            };
+        }
+
+        public static CreatePersonalResourceDto CreatePersonalResourceDtoFromCreateApplianceDto(this CreateApplianceDto createApplianceDto)
+        {
+            return new CreatePersonalResourceDto
+            {
+                Name = createApplianceDto.Name,
+                HouseId = createApplianceDto.HouseId,
+                TenantId = createApplianceDto.TenantId,
+                UserId = createApplianceDto.UserId
             };
         }
 
