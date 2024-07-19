@@ -82,12 +82,15 @@ namespace HouseInv.Services
                     updatePersonDto.LastName = existingPerson.LastName;
                 }
 
-                Person updatedPerson = existingPerson with
+                Person updatedPerson = new()
                 {
+                    Id = existingPerson.Id,
+                    CreatedDate = existingPerson.CreatedDate.ToUniversalTime(),
+                    CreatedUser = existingPerson.CreatedUser,
+
                     FirstName = updatePersonDto.FirstName,
                     LastName = updatePersonDto.LastName,
-                    // Adding the CreatedDate here to get around the DateTime needing to be converted to UTC
-                    CreatedDate = existingPerson.CreatedDate.ToUniversalTime(),
+
                     ModifiedDate = DateTime.UtcNow.ToUniversalTime(),
                     ModifiedUser = updatePersonDto.UserId
                 };

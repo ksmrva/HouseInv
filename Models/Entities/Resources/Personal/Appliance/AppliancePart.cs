@@ -1,6 +1,6 @@
 namespace HouseInv.Models.Entities.Resources.Personal.Appliance
 {
-    public record AppliancePart
+    public class AppliancePart
     {
 
     }

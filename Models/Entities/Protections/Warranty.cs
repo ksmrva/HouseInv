@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HouseInv.Models.Entities.Protections
 {
     [Table("Warranty")]
-    public record Warranty
+    public class Warranty
     {
         [Column("id")]
         public long Id { get; init; }

@@ -1,10 +1,16 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using ErrorOr;
+using HouseInv.Models.Dtos.Houses;
 
 namespace HouseInv.Models.Entities.Houses
 {
     [Table("House")]
-    public record House
+    public class House
     {
+        public const int MinZipLength = 5;
+
+        public const int MinStateLength = 2;
+
         [Column("id")]
         public long Id { get; set; }
 
@@ -40,5 +46,106 @@ namespace HouseInv.Models.Entities.Houses
 
         [Column("modifiedUser")]
         public required string ModifiedUser { get; set; }
+
+        public House()
+        {
+
+        }
+
+        public House(long? id,
+                     string name,
+                     string address1,
+                     string address2,
+                     string city,
+                     string state,
+                     string zip,
+                     long ownerId,
+                     DateTime createdDate,
+                     DateTime modifiedDate,
+                     string createdUser,
+                     string modifiedUser)
+        {
+            Id = (long)id;
+            Name = name;
+            Address1 = address1;
+            Address2 = address2;
+            City = city;
+            State = state;
+            Zip = zip;
+            OwnerId = ownerId;
+            CreatedDate = createdDate;
+            ModifiedDate = modifiedDate;
+            CreatedUser = createdUser;
+            ModifiedUser = modifiedUser;
+        }
+
+        public static ErrorOr<House> Create(long? id,
+                                            string name,
+                                            string address1,
+                                            string address2,
+                                            string city,
+                                            string state,
+                                            string zip,
+                                            long ownerId,
+                                            DateTime createdDate,
+                                            DateTime modifiedDate,
+                                            string createdUser,
+                                            string modifiedUser)
+        {
+            ErrorOr<House> createHouseResult;
+            List<Error> errors = new();
+            if (state.Length < MinStateLength)
+            {
+                errors.Add(Errors.DataErrors.StateTooShort);
+            }
+            if (zip.Length < MinZipLength)
+            {
+                errors.Add(Errors.DataErrors.ZipTooShort);
+            }
+
+            if (errors.Count > 0)
+            {
+                createHouseResult = errors;
+            }
+            else
+            {
+                House house = new()
+                {
+                    Id = (long)id,
+                    Name = name,
+                    Address1 = address1,
+                    Address2 = address2,
+                    City = city,
+                    State = state,
+                    Zip = zip,
+                    OwnerId = ownerId,
+                    CreatedDate = createdDate,
+                    ModifiedDate = modifiedDate,
+                    CreatedUser = createdUser,
+                    ModifiedUser = modifiedUser
+                };
+                createHouseResult = house;
+            }
+            return createHouseResult;
+        }
+
+        public static ErrorOr<House> FromCreateDto(CreateHouseDto createHouseDto)
+        {
+            var utcNowValue = DateTime.UtcNow;
+            return Create(
+                null,
+                createHouseDto.Name,
+                createHouseDto.Address1,
+                createHouseDto.Address2,
+                createHouseDto.City,
+                createHouseDto.State,
+                createHouseDto.Zip,
+                createHouseDto.OwnerId,
+                utcNowValue,
+                utcNowValue,
+                createHouseDto.UserId,
+                createHouseDto.UserId
+            );
+        }
     }
 }

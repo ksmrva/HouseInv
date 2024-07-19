@@ -18,23 +18,21 @@ namespace HouseInv.Services
         public async Task<ErrorOr<HouseDto>> CreateHouseAsync(CreateHouseDto createHouseDto)
         {
             var utcNowValue = DateTime.UtcNow;
-            House house = new()
+            ErrorOr<House> createHouseResult = House.FromCreateDto(createHouseDto);
+
+            ErrorOr<HouseDto> result;
+            if (createHouseResult.IsError)
             {
-                Name = createHouseDto.Name,
-                Address1 = createHouseDto.Address1,
-                Address2 = createHouseDto.Address2,
-                City = createHouseDto.City,
-                State = createHouseDto.State,
-                Zip = createHouseDto.Zip,
-                OwnerId = createHouseDto.OwnerId,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createHouseDto.UserId,
-                ModifiedUser = createHouseDto.UserId
-            };
-            await houseInvDbContext.House.AddAsync(house);
-            await houseInvDbContext.SaveChangesAsync();
-            return house.AsDto();
+                result = createHouseResult.Errors;
+            }
+            else
+            {
+                House house = createHouseResult.Value;
+                await houseInvDbContext.House.AddAsync(house);
+                await houseInvDbContext.SaveChangesAsync();
+                result = house.AsDto();
+            }
+            return result;
         }
 
         public async Task<ErrorOr<HouseDto>> GetHouseAsync(long houseId)
@@ -102,25 +100,34 @@ namespace HouseInv.Services
                 {
                     updateHouseDto.Zip = existingHouse.Zip;
                 }
-
-                House updatedHouse = existingHouse with
+                if (updateHouseDto.OwnerId is null || updateHouseDto.OwnerId <= 0)
                 {
-                    Name = updateHouseDto.Name,
-                    Address1 = updateHouseDto.Address1,
-                    Address2 = updateHouseDto.Address2,
-                    City = updateHouseDto.City,
-                    State = updateHouseDto.State,
-                    Zip = updateHouseDto.Zip,
-                    OwnerId = (long)updateHouseDto.OwnerId,
-                    // Adding the CreatedDate here to get around the DateTime needing to be converted to UTC
-                    CreatedDate = existingHouse.CreatedDate.ToUniversalTime(),
-                    ModifiedDate = DateTime.UtcNow.ToUniversalTime(),
-                    ModifiedUser = updateHouseDto.UserId
-                };
-                houseInvDbContext.Detach(existingHouse);
-                houseInvDbContext.House.Update(updatedHouse);
-                await houseInvDbContext.SaveChangesAsync();
-                updateResult = Result.Updated;
+                    updateHouseDto.OwnerId = existingHouse.OwnerId;
+                }
+
+                ErrorOr<House> updatedHouseResult = House.Create(existingHouse.Id,
+                                                                 updateHouseDto.Name,
+                                                                 updateHouseDto.Address1,
+                                                                 updateHouseDto.Address2,
+                                                                 updateHouseDto.City,
+                                                                 updateHouseDto.State,
+                                                                 updateHouseDto.Zip,
+                                                                 (long)updateHouseDto.OwnerId,
+                                                                 DateTime.UtcNow.ToUniversalTime(),
+                                                                 existingHouse.CreatedDate.ToUniversalTime(),
+                                                                 existingHouse.CreatedUser,
+                                                                 updateHouseDto.UserId);
+                if (updatedHouseResult.IsError)
+                {
+                    updateResult = updatedHouseResult.Errors;
+                }
+                else
+                {
+                    houseInvDbContext.Detach(existingHouse);
+                    houseInvDbContext.House.Update(updatedHouseResult.Value);
+                    await houseInvDbContext.SaveChangesAsync();
+                    updateResult = Result.Updated;
+                }
             }
             return updateResult;
         }

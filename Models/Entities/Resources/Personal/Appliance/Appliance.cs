@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HouseInv.Models.Entities.Resources.Personal.Appliance
 {
     [Table("Appliance")]
-    public record Appliance
+    public class Appliance
     {
         [Column("id")]
         public long Id { get; init; }

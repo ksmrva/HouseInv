@@ -81,9 +81,14 @@ namespace HouseInv.Controllers
                     updateNoteDto.NoteValue = existingNote.NoteValue;
                 }
 
-                Note updatedNote = existingNote with
+                Note updatedNote = new()
                 {
+                    Id = existingNote.Id,
+                    CreatedDate = existingNote.CreatedDate.ToUniversalTime(),
+                    CreatedUser = existingNote.CreatedUser,
+
                     NoteValue = updateNoteDto.NoteValue,
+
                     ModifiedDate = DateTimeOffset.UtcNow,
                     ModifiedUser = updateNoteDto.UserId
                 };

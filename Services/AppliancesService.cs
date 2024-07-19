@@ -1,7 +1,6 @@
 using System.Data;
 using ErrorOr;
 using HouseInv.Errors;
-using HouseInv.Models.Dtos.Resources;
 using HouseInv.Models.Dtos.Resources.Personal;
 using HouseInv.Models.Dtos.Resources.Personal.Appliance;
 using HouseInv.Models.Entities.Resources.Personal.Appliance;
@@ -111,14 +110,18 @@ namespace HouseInv.Services
                 {
                     updateApplianceDto.InstallationDate = existingAppliance.InstallationDate;
                 }
-                Appliance updatedAppliance = existingAppliance with
+                Appliance updatedAppliance = new()
                 {
+                    Id = existingAppliance.Id,
+                    PersonalResourceId = existingAppliance.PersonalResourceId,
+                    CreatedDate = existingAppliance.CreatedDate.ToUniversalTime(),
+                    CreatedUser = existingAppliance.CreatedUser,
+
                     Brand = updateApplianceDto.Brand,
                     Price = (decimal)updateApplianceDto.Price,
                     PurchaseDate = ((DateTime)updateApplianceDto.PurchaseDate).ToUniversalTime(),
                     InstallationDate = ((DateTime)updateApplianceDto.InstallationDate).ToUniversalTime(),
-                    // Adding the CreatedDate here to get around the DateTime needing to be converted to UTC
-                    CreatedDate = existingAppliance.CreatedDate.ToUniversalTime(),
+
                     ModifiedDate = DateTime.UtcNow.ToUniversalTime(),
                     ModifiedUser = updateApplianceDto.UserId
                 };

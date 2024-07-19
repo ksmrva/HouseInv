@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HouseInv.Models.Entities.Events
 {
     [Table("Action")]
-    public record Action
+    public class Action
     {
         [Column("id")]
         public long Id { get; init; }

@@ -4,7 +4,7 @@ using HouseInv.Models.Entities.Resources.Personal.Appliance;
 namespace HouseInv.Models.Entities
 {
     [Table("Filter")]
-    public record Filter : AppliancePart
+    public class Filter : AppliancePart
     {
         [Column("purchaseUrl")]
         public string? PurchaseUrl { get; set; }

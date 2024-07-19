@@ -97,12 +97,15 @@ namespace HouseInv.Services
                     updatePersonalResourceDto.ResourceId = existingPersonalResource.ResourceId;
                 }
 
-                PersonalResource updatedPersonalResource = existingPersonalResource with
+                PersonalResource updatedPersonalResource = new()
                 {
+                    Id = existingPersonalResource.Id,
+                    CreatedDate = existingPersonalResource.CreatedDate.ToUniversalTime(),
+                    CreatedUser = existingPersonalResource.CreatedUser,
+
                     TenantId = (long)updatePersonalResourceDto.TenantId,
                     ResourceId = (long)updatePersonalResourceDto.ResourceId,
-                    // Adding the CreatedDate here to get around the DateTime needing to be converted to UTC
-                    CreatedDate = existingPersonalResource.CreatedDate.ToUniversalTime(),
+
                     ModifiedDate = DateTime.UtcNow.ToUniversalTime(),
                     ModifiedUser = updatePersonalResourceDto.UserId
                 };

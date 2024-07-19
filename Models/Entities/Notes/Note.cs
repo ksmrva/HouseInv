@@ -1,12 +1,12 @@
 namespace HouseInv.Models.Entities.Notes
 {
-    public record Note
+    public class Note
     {
-        public Guid Id { get; init; }
-        public required string NoteValue { get; init; }
-        public required DateTimeOffset CreatedDate { get; init; }
-        public required DateTimeOffset ModifiedDate { get; init; }
-        public required string CreatedUser { get; init; }
-        public required string ModifiedUser { get; init; }
+        public Guid Id { get; set; }
+        public required string NoteValue { get; set; }
+        public required DateTimeOffset CreatedDate { get; set; }
+        public required DateTimeOffset ModifiedDate { get; set; }
+        public required string CreatedUser { get; set; }
+        public required string ModifiedUser { get; set; }
     }
 }
