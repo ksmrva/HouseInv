@@ -42,6 +42,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<IResourcesService, ResourcesService>();
     builder.Services.AddScoped<IPersonalResourcesService, PersonalResourcesService>();
     builder.Services.AddScoped<IAppliancesService, AppliancesService>();
+    builder.Services.AddScoped<INotesService, NotesService>();
 
     // Controllers config
     builder.Services.AddControllers(options =>

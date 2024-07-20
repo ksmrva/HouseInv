@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using ErrorOr;
 using HouseInv.Models.Dtos.Houses;
+using HouseInv.Models.Entities.Persons;
 
 namespace HouseInv.Models.Entities.Houses
 {
@@ -33,7 +34,10 @@ namespace HouseInv.Models.Entities.Houses
         public required string Zip { get; set; }
 
         [Column("ownerId")]
+        [ForeignKey("Owner")]
         public required long OwnerId { get; set; }
+
+        public virtual Person Owner { get; set; }
 
         [Column("createdDate")]
         public required DateTime CreatedDate { get; set; }
@@ -47,12 +51,12 @@ namespace HouseInv.Models.Entities.Houses
         [Column("modifiedUser")]
         public required string ModifiedUser { get; set; }
 
-        public House()
+        private House()
         {
 
         }
 
-        public House(long? id,
+        private House(long? id,
                      string name,
                      string address1,
                      string address2,

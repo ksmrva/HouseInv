@@ -2,7 +2,7 @@ namespace HouseInv.Models.Entities.Notes
 {
     public record NoteDto
     {
-        public Guid Id { get; init; }
+        public required Guid Id { get; init; }
         public required string NoteValue { get; init; }
         public required DateTimeOffset CreatedDate { get; init; }
         public required DateTimeOffset ModifiedDate { get; init; }

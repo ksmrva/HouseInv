@@ -1,3 +1,5 @@
+using HouseInv.Models.Entities.Persons;
+
 namespace HouseInv.Models.Dtos.Houses
 {
     public record HouseDto
@@ -10,6 +12,7 @@ namespace HouseInv.Models.Dtos.Houses
         public required string State { get; init; }
         public required string Zip { get; init; }
         public required long OwnerId { get; init; }
+        public Person Owner { get; set; } = null;
         public required DateTime CreatedDate { get; init; }
         public required DateTime ModifiedDate { get; init; }
         public required string CreatedUser { get; init; }

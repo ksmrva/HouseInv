@@ -3,6 +3,7 @@ using HouseInv.Errors;
 using HouseInv.Models.Dtos.Houses;
 using HouseInv.Models.Entities.Houses;
 using HouseInv.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace HouseInv.Services
 {
@@ -38,9 +39,27 @@ namespace HouseInv.Services
         public async Task<ErrorOr<HouseDto>> GetHouseAsync(long houseId)
         {
             ErrorOr<HouseDto> result;
+            House house = await houseInvDbContext.House
+                                                 .Include(h => h.Owner)
+                                                 .FirstOrDefaultAsync(h => h.Id == houseId);
+            if (house != null)
+            {
+                result = house.AsDto();
+            }
+            else
+            {
+                result = DataErrors.DataNotFound;
+            }
+            return await Task.FromResult(result);
+        }
+
+        public async Task<ErrorOr<HouseDto>> GetHouseAsync2(long houseId)
+        {
+            ErrorOr<HouseDto> result;
             House house = await houseInvDbContext.House.FindAsync(houseId);
             if (house != null)
             {
+                houseInvDbContext.Entry(house).Reference(h => h.Owner).Load();
                 result = house.AsDto();
             }
             else
@@ -148,5 +167,38 @@ namespace HouseInv.Services
             }
             return deleteResult;
         }
+
+        // private HouseDto FinalizeChangesFromUpdatedAndExisting()
+        // {
+        //     HouseDto finalizedHouseChanges
+        //     if (updateHouseDto.Name is null || updateHouseDto.Name.Length == 0)
+        //         {
+        //             updateHouseDto.Name = existingHouse.Name;
+        //         }
+        //         if (updateHouseDto.Address1 is null || updateHouseDto.Address1.Length == 0)
+        //         {
+        //             updateHouseDto.Address1 = existingHouse.Address1;
+        //         }
+        //         if (updateHouseDto.Address2 is null || updateHouseDto.Address2.Length == 0)
+        //         {
+        //             updateHouseDto.Address2 = existingHouse.Address2;
+        //         }
+        //         if (updateHouseDto.City is null || updateHouseDto.City.Length == 0)
+        //         {
+        //             updateHouseDto.City = existingHouse.City;
+        //         }
+        //         if (updateHouseDto.State is null || updateHouseDto.State.Length == 0)
+        //         {
+        //             updateHouseDto.State = existingHouse.State;
+        //         }
+        //         if (updateHouseDto.Zip is null || updateHouseDto.Zip.Length == 0)
+        //         {
+        //             updateHouseDto.Zip = existingHouse.Zip;
+        //         }
+        //         if (updateHouseDto.OwnerId is null || updateHouseDto.OwnerId <= 0)
+        //         {
+        //             updateHouseDto.OwnerId = existingHouse.OwnerId;
+        //         }
+        // }
     }
 }

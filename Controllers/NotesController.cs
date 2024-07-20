@@ -1,118 +1,71 @@
+using ErrorOr;
 using HouseInv.Models.Entities.Notes;
-using HouseInv.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseInv.Controllers
 {
-    [ApiController]
-    [Route("notes")]
-    public class NotesController : ControllerBase
+    public class NotesController : ApiController
     {
-        private readonly IAsyncNotesRepository noteRepository;
+        private readonly INotesService notesService;
 
-        public NotesController(IAsyncNotesRepository noteRepository)
+        public NotesController(INotesService notesService)
         {
-            this.noteRepository = noteRepository;
+            this.notesService = notesService;
         }
 
         [HttpPost]
         public async Task<ActionResult<NoteDto>> CreateNoteAsync(CreateNoteDto createNoteDto)
         {
-            var utcNowValue = DateTimeOffset.UtcNow;
-            Note note = new()
-            {
-                Id = Guid.NewGuid(),
-                NoteValue = createNoteDto.NoteValue,
-                CreatedDate = utcNowValue,
-                ModifiedDate = utcNowValue,
-                CreatedUser = createNoteDto.UserId,
-                ModifiedUser = createNoteDto.UserId
-            };
-            await noteRepository.CreateNoteAsync(note);
+            ErrorOr<NoteDto> errorOrNoteDto = await notesService.CreateNoteAsync(createNoteDto);
 
-            return CreatedAtAction(nameof(GetNoteAsync), new { id = note.Id }, note.AsDto());
+            return errorOrNoteDto.Match(
+                noteDto => Ok(CreatedAtAction(nameof(GetNoteAsync), new { id = noteDto.Id }, noteDto)),
+                errors => Problem(errors)
+            );
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{noteId}")]
         public async Task<ActionResult<NoteDto>> GetNoteAsync(Guid noteId)
         {
-            ActionResult<NoteDto> actionResult;
-            Note noteResult = await noteRepository.GetNoteAsync(noteId);
-            if (noteResult == null)
-            {
-                actionResult = NotFound();
-            }
-            else
-            {
-                actionResult = Ok(noteResult.AsDto());
-            }
-            return actionResult;
+            ErrorOr<NoteDto> errorOrNoteDto = await notesService.GetNoteAsync(noteId);
+
+            return errorOrNoteDto.Match(
+                noteDto => Ok(noteDto),
+                errors => Problem(errors)
+            );
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<NoteDto>>> GetNotesAsync()
+        public async Task<ActionResult<List<NoteDto>>> GetNotesAsync()
         {
-            ActionResult<IEnumerable<NoteDto>> actionResult;
-            IEnumerable<Note> notesResult = await noteRepository.GetNotesAsync();
-            if (notesResult == null || !(notesResult.Any()))
-            {
-                actionResult = NotFound();
-            }
-            else
-            {
-                actionResult = Ok(notesResult.Select(note => note.AsDto()));
-            }
-            return actionResult;
+            ErrorOr<List<NoteDto>> errorOrNoteDtos = await notesService.GetNotesAsync();
+
+            return errorOrNoteDtos.Match(
+                noteDtos => Ok(noteDtos),
+                errors => Problem(errors)
+            );
         }
 
         [HttpPut("{noteId}")]
         public async Task<ActionResult> UpdateNoteAsync(Guid noteId, UpdateNoteDto updateNoteDto)
         {
-            ActionResult result;
-            Note existingNote = await noteRepository.GetNoteAsync(noteId);
-            if (existingNote is null)
-            {
-                result = NotFound();
-            }
-            else
-            {
-                if (updateNoteDto.NoteValue is null || updateNoteDto.NoteValue.Length == 0)
-                {
-                    updateNoteDto.NoteValue = existingNote.NoteValue;
-                }
+            ErrorOr<Updated> errorOrUpdated = await notesService.UpdateNoteAsync(noteId, updateNoteDto);
 
-                Note updatedNote = new()
-                {
-                    Id = existingNote.Id,
-                    CreatedDate = existingNote.CreatedDate.ToUniversalTime(),
-                    CreatedUser = existingNote.CreatedUser,
-
-                    NoteValue = updateNoteDto.NoteValue,
-
-                    ModifiedDate = DateTimeOffset.UtcNow,
-                    ModifiedUser = updateNoteDto.UserId
-                };
-                await noteRepository.UpdateNoteAsync(updatedNote);
-                result = NoContent();
-            }
-            return result;
+            return errorOrUpdated.Match(
+                updated => NoContent(),
+                errors => Problem(errors)
+            );
         }
 
         [HttpDelete("{noteId}")]
         public async Task<ActionResult> DeleteNoteAsync(Guid noteId)
         {
-            ActionResult result;
-            Note existingNote = await noteRepository.GetNoteAsync(noteId);
-            if (existingNote is null)
-            {
-                result = NotFound();
-            }
-            else
-            {
-                await noteRepository.DeleteNoteAsync(noteId);
-                result = NoContent();
-            }
-            return result;
+            ErrorOr<Deleted> errorOrDeleted = await notesService.DeleteNoteAsync(noteId);
+
+            return errorOrDeleted.Match(
+                deleted => NoContent(),
+                errors => Problem(errors)
+            );
         }
     }
 }

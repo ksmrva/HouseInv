@@ -42,6 +42,7 @@ namespace HouseInv
                 State = house.State,
                 Zip = house.Zip,
                 OwnerId = house.OwnerId,
+                Owner = house.Owner,
                 CreatedDate = house.CreatedDate,
                 ModifiedDate = house.ModifiedDate,
                 CreatedUser = house.CreatedUser,
