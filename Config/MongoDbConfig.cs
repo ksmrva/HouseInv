@@ -7,11 +7,12 @@ namespace HouseInv.Config
         public required string User { get; set; }
         public required string Password { get; set; }
 
-        public string ConnectionString { 
+        public string ConnectionString
+        {
             get
             {
                 return $"mongodb://{User}:{Password}@{Host}:{Port}";
-            } 
+            }
         }
     }
 }
