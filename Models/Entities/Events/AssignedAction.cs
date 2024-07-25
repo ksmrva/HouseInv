@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HouseInv.Models.Entities.Events
 {
-    [Table("AssignedAction")]
+    [Table("assigned_action")]
     public class AssignedAction
     {
         [Column("id")]
@@ -14,10 +14,10 @@ namespace HouseInv.Models.Entities.Events
         [Column("completed")]
         public required bool Completed { get; set; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public DateTime ModifiedDate { get; set; }
     }
 }

@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: houseinv-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: houseinv
+  ports:
+  - port: 80
+    targetPort: 80
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,7 +25,7 @@ spec:
     spec:
       containers:
       - name: houseinv
-        image: ksmrva/houseinv:v1
+        image: ksmrva/houseinv:v2
         resources:
           limits:
             memory: "128Mi"
@@ -26,8 +38,15 @@ spec:
           - name: MongoDbConfig__Password
             valueFrom:
               secretKeyRef:
-                name: houseinv-secrets
+                name: data
                 key: mongodb-password
+          - name: PostgresConfig__Host
+            value: postgres-service
+          - name: PostgresConfig__Password
+            valueFrom:
+              secretKeyRef:
+                name: data
+                key: postgres-password
         livenessProbe:
           httpGet:
             path: /health/live
@@ -36,16 +55,3 @@ spec:
           httpGet:
             path: /health/ready
             port: 80
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: houseinv-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: houseinv
-  ports:
-  - port: 80
-    targetPort: 80

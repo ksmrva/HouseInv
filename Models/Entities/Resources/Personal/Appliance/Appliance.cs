@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HouseInv.Models.Entities.Resources.Personal.Appliance
 {
-    [Table("Appliance")]
+    [Table("appliance")]
     public class Appliance
     {
         [Column("id")]
         public long Id { get; init; }
 
-        [Column("personalResourceId")]
+        [Column("personal_resource_id")]
         public required long PersonalResourceId { get; init; }
 
         [Column("brand")]
@@ -17,22 +17,22 @@ namespace HouseInv.Models.Entities.Resources.Personal.Appliance
         [Column("price")]
         public required decimal Price { get; init; }
 
-        [Column("purchaseDate")]
+        [Column("purchase_date")]
         public required DateTime PurchaseDate { get; init; }
 
-        [Column("installationDate")]
+        [Column("installation_date")]
         public required DateTime InstallationDate { get; init; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public required DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public required DateTime ModifiedDate { get; init; }
 
-        [Column("createdUser")]
+        [Column("created_user")]
         public required string CreatedUser { get; init; }
 
-        [Column("modifiedUser")]
+        [Column("modified_user")]
         public required string ModifiedUser { get; init; }
     }
 }

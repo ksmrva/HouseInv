@@ -3,22 +3,22 @@ using HouseInv.Models.Entities.Resources.Personal.Appliance;
 
 namespace HouseInv.Models.Entities
 {
-    [Table("Filter")]
+    [Table("filter")]
     public class Filter : AppliancePart
     {
-        [Column("purchaseUrl")]
+        [Column("purchase_url")]
         public string? PurchaseUrl { get; set; }
 
         [Column("price")]
         public decimal? Price { get; set; }
 
-        [Column("timeUntilReplacementInWeeks")]
+        [Column("time_until_replacement_in_weeks")]
         public int TimeUntilReplacementInWeeks { get; set; }
 
-        [Column("installationDate")]
+        [Column("installation_date")]
         public DateTime InstallationDate { get; set; }
 
-        [Column("lastPurchaseDate")]
+        [Column("last_purchase_date")]
         public DateTime LastPurchaseDate { get; init; }
     }
 }

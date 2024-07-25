@@ -22,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
         options.UseNpgsql(postgresConfig.ConnectionString)
             .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>();
     });
-    builder.Services.AddSingleton<IDbContextSchema>(new HouseInvDbSchema { Schema = "csharp" });
+    builder.Services.AddSingleton<IDbContextSchema>(new HouseInvDbSchema { Schema = postgresConfig.Schema });
 
     // MongoDB config
     BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));

@@ -6,11 +6,13 @@ namespace HouseInv.Controllers
 {
     public class NotesController : ApiController
     {
+        private readonly ILogger<NotesController> logger;
         private readonly INotesService notesService;
 
-        public NotesController(INotesService notesService)
+        public NotesController(INotesService notesService, ILogger<NotesController> logger)
         {
             this.notesService = notesService;
+            this.logger = logger;
         }
 
         [HttpPost]
@@ -41,7 +43,11 @@ namespace HouseInv.Controllers
             ErrorOr<List<NoteDto>> errorOrNoteDtos = await notesService.GetNotesAsync();
 
             return errorOrNoteDtos.Match(
-                noteDtos => Ok(noteDtos),
+                noteDtos =>
+                {
+                    logger.LogInformation($"{DateTime.UtcNow.ToString("hh:mm:ss")}: Retreived [{noteDtos.Count()}] Notes");
+                    return Ok(noteDtos);
+                },
                 errors => Problem(errors)
             );
         }

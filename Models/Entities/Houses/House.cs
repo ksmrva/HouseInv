@@ -5,7 +5,7 @@ using HouseInv.Models.Entities.Persons;
 
 namespace HouseInv.Models.Entities.Houses
 {
-    [Table("House")]
+    [Table("house")]
     public class House
     {
         public const int MinZipLength = 5;
@@ -33,22 +33,21 @@ namespace HouseInv.Models.Entities.Houses
         [Column("zip")]
         public required string Zip { get; set; }
 
-        [Column("ownerId")]
+        [Column("owner_id")]
         [ForeignKey("Owner")]
         public required long OwnerId { get; set; }
-
         public virtual Person Owner { get; set; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public required DateTime CreatedDate { get; set; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public required DateTime ModifiedDate { get; set; }
 
-        [Column("createdUser")]
+        [Column("created_user")]
         public required string CreatedUser { get; set; }
 
-        [Column("modifiedUser")]
+        [Column("modified_user")]
         public required string ModifiedUser { get; set; }
 
         private House()

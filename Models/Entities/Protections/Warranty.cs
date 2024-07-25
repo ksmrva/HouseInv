@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HouseInv.Models.Entities.Protections
 {
-    [Table("Warranty")]
+    [Table("warranty")]
     public class Warranty
     {
         [Column("id")]
@@ -11,22 +11,22 @@ namespace HouseInv.Models.Entities.Protections
         [Column("name")]
         public required string Name { get; init; }
 
-        [Column("lengthInWeeks")]
+        [Column("length_in_weeks")]
         public required int LengthInWeeks { get; init; }
 
-        [Column("purchaseDate")]
+        [Column("purchase_date")]
         public required DateTime PurchaseDate { get; init; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public required DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public required DateTime ModifiedDate { get; init; }
 
-        [Column("createdUser")]
+        [Column("created_user")]
         public required string CreatedUser { get; init; }
 
-        [Column("modifiedUser")]
+        [Column("modified_user")]
         public required string ModifiedUser { get; init; }
     }
 }

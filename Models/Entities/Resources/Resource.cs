@@ -2,28 +2,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HouseInv.Models.Entities.Resources
 {
-    [Table("Resource")]
+    [Table("resource")]
     public class Resource
     {
         [Column("id")]
         public long Id { get; init; }
 
-        [Column("houseId")]
+        [Column("house_id")]
         public required long HouseId { get; init; }
 
         [Column("name")]
         public required string Name { get; init; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public required DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public required DateTime ModifiedDate { get; init; }
 
-        [Column("createdUser")]
+        [Column("created_user")]
         public required string CreatedUser { get; init; }
 
-        [Column("modifiedUser")]
+        [Column("modified_user")]
         public required string ModifiedUser { get; init; }
     }
 }

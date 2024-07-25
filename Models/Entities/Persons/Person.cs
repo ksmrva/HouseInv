@@ -2,28 +2,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HouseInv.Models.Entities.Persons
 {
-    [Table("Person")]
+    [Table("person")]
     public class Person
     {
         [Column("id")]
         public long Id { get; init; }
 
-        [Column("firstName")]
+        [Column("first_name")]
         public required string FirstName { get; init; }
 
-        [Column("lastName")]
+        [Column("last_name")]
         public required string LastName { get; init; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public required DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public required DateTime ModifiedDate { get; init; }
 
-        [Column("createdUser")]
+        [Column("created_user")]
         public required string CreatedUser { get; init; }
 
-        [Column("modifiedUser")]
+        [Column("modified_user")]
         public required string ModifiedUser { get; init; }
     }
 }

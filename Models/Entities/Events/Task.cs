@@ -3,7 +3,7 @@ using HouseInv.Models.Entities.Resources;
 
 namespace HouseInv.Models.Entities.Events
 {
-    [Table("Task")]
+    [Table("task")]
     public class Task
     {
         [Column("id")]
@@ -15,19 +15,19 @@ namespace HouseInv.Models.Entities.Events
         [Column("resource")]
         public required Resource Resource { get; init; }
 
-        [Column("assignedAction")]
+        [Column("assigned_action")]
         public required AssignedAction[] AssignedActions { get; init; }
 
-        [Column("activeDate")]
+        [Column("active_date")]
         public DateTime ActiveDate { get; set; }
 
-        [Column("completedDate")]
+        [Column("completed_date")]
         public DateTime CompletedDate { get; set; }
 
-        [Column("createdDate")]
+        [Column("created_date")]
         public DateTime CreatedDate { get; init; }
 
-        [Column("modifiedDate")]
+        [Column("modified_date")]
         public DateTime ModifiedDate { get; set; }
     }
 }
