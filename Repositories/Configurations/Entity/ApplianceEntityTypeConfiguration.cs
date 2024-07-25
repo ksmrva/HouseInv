@@ -17,10 +17,8 @@ public class ApplianceEntityTypeConfiguration : IEntityTypeConfiguration<Applian
     {
         if (!string.IsNullOrWhiteSpace(_schema))
         {
-            builder.ToTable(nameof(HouseInvDbContext.Appliance), _schema);
+            builder.ToTable(nameof(HouseInvDbContext.Appliance).ToLower(), _schema);
         }
         builder.HasKey(b => b.Id);
-        // builder.Property(b => b.Id)
-        //     .ValueGeneratedNever();
     }
 }

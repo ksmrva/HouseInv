@@ -18,10 +18,8 @@ public class PersonalResourceEntityTypeConfiguration : IEntityTypeConfiguration<
     {
         if (!string.IsNullOrWhiteSpace(_schema))
         {
-            builder.ToTable(nameof(HouseInvDbContext.PersonalResource), _schema);
+            builder.ToTable(nameof(HouseInvDbContext.PersonalResource).ToLower(), _schema);
         }
         builder.HasKey(b => b.Id);
-        // builder.Property(b => b.Id)
-        //     .ValueGeneratedNever();
     }
 }

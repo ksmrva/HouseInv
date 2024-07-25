@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: houseinv
-        image: ksmrva/houseinv:v2
+        image: ksmrva/houseinv:v3
         resources:
           limits:
             memory: "128Mi"

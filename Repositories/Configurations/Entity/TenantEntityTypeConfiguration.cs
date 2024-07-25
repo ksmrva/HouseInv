@@ -17,10 +17,8 @@ public class TenantEntityTypeConfiguration : IEntityTypeConfiguration<Tenant>
     {
         if (!string.IsNullOrWhiteSpace(_schema))
         {
-            builder.ToTable(nameof(HouseInvDbContext.Tenant), _schema);
+            builder.ToTable(nameof(HouseInvDbContext.Tenant).ToLower(), _schema);
         }
         builder.HasKey(b => b.Id);
-        // builder.Property(b => b.Id)
-        //     .ValueGeneratedNever();
     }
 }

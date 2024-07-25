@@ -17,10 +17,8 @@ public class PersonEntityTypeConfiguration : IEntityTypeConfiguration<Person>
     {
         if (!string.IsNullOrWhiteSpace(_schema))
         {
-            builder.ToTable(nameof(HouseInvDbContext.Person), _schema);
+            builder.ToTable(nameof(HouseInvDbContext.Person).ToLower(), _schema);
         }
         builder.HasKey(b => b.Id);
-        // builder.Property(b => b.Id)
-        //     .ValueGeneratedNever();
     }
 }
