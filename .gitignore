@@ -25,6 +25,9 @@ dist-ssr
 .vs
 /bin
 /obj
-HouseInv.Api.csproj
-misc.txt
+/HouseInv.Api/bin
+/HouseInv.Api/obj
+/HouseInv.UnitTests/bin
+/HouseInv.UnitTests/obj
+*.csproj
 /scratch
